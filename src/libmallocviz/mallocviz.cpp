@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <fstream>
 
@@ -23,7 +24,7 @@ struct OutputFile
 {
     OutputFile()
     {
-        m_fhandle = open("malloc.log", O_WRONLY | O_CREAT | O_TRUNC);
+        m_fhandle = open("malloc.log", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     }
 
     ~OutputFile()
@@ -39,11 +40,11 @@ struct OutputFile
         write(m_fhandle, m_numbuffer, strlen(m_numbuffer));
     }
 
-    void write_2(const char *header, size_t num1, size_t num2)
+    void write_2_t(const char *header, size_t num1, size_t num2)
     {
         if (!m_fhandle) return;
 
-        sprintf(m_numbuffer, "%s %zu %zu\n", header, num1, num2);
+        sprintf(m_numbuffer, "%s %zu %zu %llu\n", header, num1, num2, (unsigned long long)time(NULL));
         write(m_fhandle, m_numbuffer, strlen(m_numbuffer));
     }
 
@@ -63,7 +64,7 @@ void* malloc(size_t size)
 
     void *ret = real_malloc(size);
 
-    g_output.write_2("alloc", (size_t)ret, size);
+    g_output.write_2_t("alloc", (size_t)ret, size);
 
     return ret;
 }
@@ -76,7 +77,7 @@ void* realloc (void* ptr, size_t size) {
     void *ret = real_realloc(ptr, size);
 
     g_output.write_1("free", (size_t)ptr);
-    g_output.write_2("alloc", (size_t)ret, size);
+    g_output.write_2_t("alloc", (size_t)ret, size);
 
     return ret;
 }
