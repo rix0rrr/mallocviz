@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export DYLD_INSERT_LIBRARIES=../libmallocviz/libmallocviz.dylib
+export DYLD_FORCE_FLAT_NAMESPACE=1
+export LD_PRELOAD=../libmallocviz/libmallocviz.so
+./tester
