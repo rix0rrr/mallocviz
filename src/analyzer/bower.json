@@ -1,0 +1,11 @@
+{
+  "name": "mallocviz-analyzer",
+  "version": "0.0.1",
+  "authors": [
+    "Rico Huijbers <rix0rrr@gmail.com>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "tinycolor": "~1.0.0",
+  }
+}
