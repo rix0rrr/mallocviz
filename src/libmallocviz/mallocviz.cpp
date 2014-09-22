@@ -32,19 +32,11 @@ struct OutputFile
         close(m_fhandle);
     }
 
-    void write_1(const char *header, size_t num)
+    void write_rec(const char *header, void* ptr, size_t num)
     {
         if (!m_fhandle) return;
 
-        sprintf(m_numbuffer, "%s %zu\n", header, num);
-        write(m_fhandle, m_numbuffer, strlen(m_numbuffer));
-    }
-
-    void write_2_t(const char *header, size_t num1, size_t num2)
-    {
-        if (!m_fhandle) return;
-
-        sprintf(m_numbuffer, "%s %zu %zu %llu\n", header, num1, num2, (unsigned long long)time(NULL));
+        sprintf(m_numbuffer, "%s %zu %zu %llu\n", header, (size_t)ptr, num, (unsigned long long)time(NULL));
         write(m_fhandle, m_numbuffer, strlen(m_numbuffer));
     }
 
@@ -64,7 +56,7 @@ void* malloc(size_t size)
 
     void *ret = real_malloc(size);
 
-    g_output.write_2_t("alloc", (size_t)ret, size);
+    g_output.write_rec("alloc", ret, size);
 
     return ret;
 }
@@ -76,8 +68,8 @@ void* realloc (void* ptr, size_t size) {
 
     void *ret = real_realloc(ptr, size);
 
-    g_output.write_1("free", (size_t)ptr);
-    g_output.write_2_t("alloc", (size_t)ret, size);
+    g_output.write_rec("free", ptr, 0);
+    g_output.write_rec("alloc", ret, size);
 
     return ret;
 }
@@ -88,7 +80,7 @@ void free(void *ptr)
     if (!real_free) real_free = (free_t)dlsym(RTLD_NEXT, "free");
     if (!real_free) printf("Couldn't load free\n");
 
-    g_output.write_1("free", (size_t)ptr);
+    g_output.write_rec("free", ptr, 0);
     real_free(ptr);
 }
 
